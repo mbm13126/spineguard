@@ -817,52 +817,131 @@
         </div>
     </nav>
 
-    <script>
-        // Динамическое приветствие по времени
-        function updateGreeting() {
-            const hour = new Date().getHours();
-            const name = "Александр";
-            let greeting;
+   <script>
+    // ============================================
+    // ПОДКЛЮЧЕНИЕ К API
+    // ============================================
+    
+    const API_URL = 'https://spineguard-api.onrender.com';
+    
+    // Инициализация Telegram WebApp
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+        tg.ready();
+        tg.expand();
+    }
+    
+    // Получаем telegram_id
+    const telegram_id = tg?.initDataUnsafe?.user?.id || '123456'; // Тестовый ID для браузера
+    
+    // ============================================
+    // ЗАГРУЗКА ДАННЫХ ПОЛЬЗОВАТЕЛЯ
+    // ============================================
+    
+    async function loadUserData() {
+        try {
+            console.log('Загружаем данные пользователя...', telegram_id);
+            const response = await fetch(`${API_URL}/api/user/${telegram_id}`);
+            const data = await response.json();
             
-            if (hour < 6) greeting = "🌙 Доброй ночи";
-            else if (hour < 12) greeting = "🌅 Доброе утро";
-            else if (hour < 18) greeting = "☀️ Добрый день";
-            else greeting = "🌆 Добрый вечер";
+            console.log('Данные получены:', data);
             
-            document.getElementById('greeting').textContent = `${greeting}, ${name}!`;
+            if (data.success) {
+                // Обновляем имя
+                const userName = data.user.name || 'Пользователь';
+                updateGreeting(userName);
+                
+                // Обновляем токены
+                document.querySelectorAll('.token-count').forEach(el => {
+                    el.textContent = data.user.tokens;
+                });
+                
+                // Обновляем streak
+                const streakElement = document.querySelector('.streak-count');
+                if (streakElement) {
+                    streakElement.textContent = `${data.user.streak} дней`;
+                }
+                
+                console.log('✅ Данные обновлены!');
+            }
+        } catch (error) {
+            console.error('❌ Ошибка загрузки данных:', error);
+            // Используем дефолтные данные
+            updateGreeting('Александр');
         }
-
-        // Таймер обратного отсчёта
-        function updateTimer() {
-            const now = new Date();
-            const midnight = new Date();
-            midnight.setHours(24, 0, 0, 0);
-            
-            const diff = midnight - now;
-            const hours = Math.floor(diff / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            
-            document.getElementById('timer').textContent = 
+    }
+    
+    // ============================================
+    // ДИНАМИЧЕСКОЕ ПРИВЕТСТВИЕ
+    // ============================================
+    
+    function updateGreeting(name = "Александр") {
+        const hour = new Date().getHours();
+        let greeting;
+        
+        if (hour < 6) greeting = "🌙 Доброй ночи";
+        else if (hour < 12) greeting = "🌅 Доброе утро";
+        else if (hour < 18) greeting = "☀️ Добрый день";
+        else greeting = "🌆 Добрый вечер";
+        
+        const greetingElement = document.getElementById('greeting');
+        if (greetingElement) {
+            greetingElement.textContent = `${greeting}, ${name}!`;
+        }
+    }
+    
+    // ============================================
+    // ТАЙМЕР ОБРАТНОГО ОТСЧЁТА
+    // ============================================
+    
+    function updateTimer() {
+        const now = new Date();
+        const midnight = new Date();
+        midnight.setHours(24, 0, 0, 0);
+        
+        const diff = midnight - now;
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        
+        const timerElement = document.getElementById('timer');
+        if (timerElement) {
+            timerElement.textContent = 
                 `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
         }
-
-        // Функция разблокировки премиума
-        function unlockPremium() {
-            alert('🎉 Премиум контент разблокирован на 10 минут!\n\nВ реальном приложении здесь откроется видео.');
-        }
-
-        // Инициализация
-        updateGreeting();
-        updateTimer();
-        setInterval(updateTimer, 60000); // Обновляем каждую минуту
-
-        // Анимация прогресс-бара при загрузке
-        window.addEventListener('load', () => {
-            const progressBar = document.querySelector('.progress-bar');
+    }
+    
+    // ============================================
+    // РАЗБЛОКИРОВКА ПРЕМИУМА
+    // ============================================
+    
+    function unlockPremium() {
+        alert('🎉 Премиум контент разблокирован на 10 минут!\n\nВ реальном приложении здесь откроется видео.');
+    }
+    
+    // ============================================
+    // ИНИЦИАЛИЗАЦИЯ
+    // ============================================
+    
+    // Загружаем данные пользователя
+    loadUserData();
+    
+    // Запускаем таймер
+    updateTimer();
+    setInterval(updateTimer, 60000); // Обновляем каждую минуту
+    
+    // Анимация прогресс-бара при загрузке
+    window.addEventListener('load', () => {
+        const progressBar = document.querySelector('.progress-bar');
+        if (progressBar) {
             setTimeout(() => {
                 progressBar.style.width = '70%';
             }, 500);
-        });
-    </script>
+        }
+    });
+    
+    console.log('🚀 SpineGuard Mini App запущен!');
+    console.log('📡 API URL:', API_URL);
+    console.log('👤 Telegram ID:', telegram_id);
+</script>
 </body>
 </html>
