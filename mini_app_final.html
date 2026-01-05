@@ -838,36 +838,59 @@
     // ЗАГРУЗКА ДАННЫХ ПОЛЬЗОВАТЕЛЯ
     // ============================================
     
-    async function loadUserData() {
-        try {
-            console.log('Загружаем данные пользователя...', telegram_id);
-            const response = await fetch(`${API_URL}/api/user/${telegram_id}`);
-            const data = await response.json();
+   async function loadUserData() {
+    try {
+        console.log('Загружаем данные пользователя...', telegram_id);
+        const response = await fetch(`${API_URL}/api/user/${telegram_id}`);
+        const data = await response.json();
+        
+        console.log('Данные получены:', data);
+        
+        if (data.success) {
+            // Обновляем имя в приветствии
+            const userName = data.user.name || 'Пользователь';
+            updateGreeting(userName);
             
-            console.log('Данные получены:', data);
-            
-            if (data.success) {
-                // Обновляем имя
-                const userName = data.user.name || 'Пользователь';
-                updateGreeting(userName);
-                
-                // Обновляем токены
-                document.querySelectorAll('.token-count').forEach(el => {
-                    el.textContent = data.user.tokens;
-                });
-                
-                // Обновляем streak
-                const streakElement = document.querySelector('.streak-count');
-                if (streakElement) {
-                    streakElement.textContent = `${data.user.streak} дней`;
-                }
-                
-                console.log('✅ Данные обновлены!');
+            // Обновляем имя в профиле (ИСПРАВЛЕНО)
+            const profileName = document.querySelector('.profile-name');
+            if (profileName) {
+                profileName.textContent = userName;
             }
-        } catch (error) {
-            console.error('❌ Ошибка загрузки данных:', error);
-            // Используем дефолтные данные
-            updateGreeting('Александр');
+            
+            // Обновляем статус (ИСПРАВЛЕНО)
+            const statusBadge = document.querySelector('.status-badge');
+            if (statusBadge) {
+                statusBadge.textContent = `Состояние: ${data.user.status || 'Отличное'}`;
+            }
+            
+            // Обновляем токены везде
+            document.querySelectorAll('.token-count').forEach(el => {
+                el.textContent = data.user.tokens;
+            });
+            
+            // Обновляем streak (ИСПРАВЛЕНО)
+            const streakCount = document.querySelector('.streak-count');
+            if (streakCount) {
+                streakCount.textContent = `${data.user.streak} дней`;
+            }
+            
+            // Обновляем уровень (ИСПРАВЛЕНО)
+            const levelBadge = document.querySelector('.level-badge');
+            if (levelBadge) {
+                levelBadge.textContent = data.user.level;
+            }
+            
+            console.log('✅ Данные обновлены!');
+            console.log('Имя:', userName);
+            console.log('Токены:', data.user.tokens);
+            console.log('Streak:', data.user.streak);
+        }
+    } catch (error) {
+        console.error('❌ Ошибка загрузки данных:', error);
+        // Используем дефолтные данные
+        updateGreeting('Пользователь');
+    }
+}
         }
     }
     
