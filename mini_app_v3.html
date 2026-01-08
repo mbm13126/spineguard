@@ -206,28 +206,43 @@
             }
         }
 
-        async function loadExercises() {
-            try {
-                const res = await fetch(`${API_URL}/api/exercises`);
-                const data = await res.json();
-                if (!data.success) return;
+       async function loadExercises() {
+    const tg = window.Telegram.WebApp;
+    const telegramId = tg.initDataUnsafe.user?.id?.toString();
+    if (!telegramId) {
+        console.error('Нет telegramId — Mini App не в Telegram');
+        return;
+    }
 
-                const list = document.getElementById('exercisesList');
-                list.innerHTML = '';
-                data.exercises.forEach(ex => {
-                    const card = document.createElement('div');
-                    card.className = 'exercise-card';
-                    card.innerHTML = `
-                        <div>
-                            <h3>${ex.title}</h3>
-                            <p style="color:var(--text-muted);">${ex.description}</p>
-                        </div>
-                        <button class="exercise-btn" onclick="completeExercise(${ex.id})">Выполнить</button>
-                    `;
-                    list.appendChild(card);
-                });
-            } catch (e) {
-                console.error(e);
+    try {
+        const res = await fetch(`${API_URL}/api/personalized-exercises/${telegramId}`);
+        const data = await res.json();
+
+        if (!data.success) {
+            console.error('API ошибка:', data);
+            return;
+        }
+
+        const list = document.getElementById('exercisesList');
+        list.innerHTML = '';  // Очищаем старые
+
+        data.exercises.forEach(ex => {
+            const card = document.createElement('div');
+            card.className = 'exercise-card';
+            card.innerHTML = `
+                <div>
+                    <h3>${ex.title}</h3>
+                    <p style="color:var(--text-muted);">${ex.description}</p>
+                    <p style="color:var(--jade); font-size:14px;">${ex.duration || ''} • ${ex.benefit || ''}</p>
+                </div>
+                <button class="exercise-btn" onclick="completeExercise(${ex.id || 0})">Выполнить</button>
+            `;
+            list.appendChild(card);
+        });
+    } catch (e) {
+        console.error('Ошибка загрузки упражнений:', e);
+    }
+}
             }
         }
 
