@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SpineGuard - Твоё здоровье</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Цветовая палитра SpineGuard */
+            --jade-wave: #3AAFA9;
+            --jade-light: #5EC8C1;
+            --electric-pulse: #2E86DE;
+            --electric-light: #54A0FF;
+            --silver-mist: #4A5567;
+            --silver-light: #6C7A89;
+            --ruby-alert: #C7254E;
+            --ruby-light: #E84A5F;
+            --amber-warmth: #F6B93B;
+            --amber-light: #FECA57;
+            --amethyst-premium: #5F27CD;
+            --emerald-success: #26C281;
+            --deep-base: #1A1A2E;
+            --deep-secondary: #16213E;
+            
+            /* Семантические цвета */
+            --bg-primary: var(--deep-base);
+            --bg-secondary: var(--deep-secondary);
+            --bg-card: rgba(74, 85, 103, 0.15);
+            --text-primary: #FFFFFF;
+            --text-secondary: #B8C5D6;
+            --text-muted: #8FA3BF;
+            
+            /* Типографика */
+            --font-display: 'Manrope', -apple-system, system-ui, sans-serif;
+            --font-mono: 'Space Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-display);
+            background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Главный контейнер */
+        .app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px 16px 80px;
+            position: relative;
+        }
+
+        /* Mesh градиент фон */
+        .bg-mesh-blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.4;
+            animation: morph 15s infinite ease-in-out;
+            pointer-events: none;
+            mix-blend-mode: screen;
+        }
+
+        .bg-mesh-blob:nth-child(1) {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--jade-wave), transparent);
+            top: -150px;
+            left: -150px;
+            animation-delay: 0s;
+        }
+
+        .bg-mesh-blob:nth-child(2) {
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, var(--electric-pulse), transparent);
+            top: 40%;
+            right: -150px;
+            animation-delay: -5s;
+        }
+
+        .bg-mesh-blob:nth-child(3) {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--amethyst-premium), transparent);
+            bottom: -150px;
+            left: 30%;
+            animation-delay: -10s;
+        }
+
+        .bg-mesh-blob:nth-child(4) {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, var(--amber-warmth), transparent);
+            top: 60%;
+            left: -100px;
+            animation-delay: -15s;
+        }
+
+        @keyframes morph {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -30px) scale(1.1); }
+            50% { transform: translate(-20px, 20px) scale(0.9); }
+            75% { transform: translate(20px, 30px) scale(1.05); }
+        }
+
+        /* Приветствие */
+        .greeting {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--jade-light), var(--electric-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Профиль */
+        .profile-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--jade-wave), var(--electric-pulse));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: white;
+        }
+
+        .profile-info h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .status-badge {
+            background: linear-gradient(135deg, rgba(38, 194, 129, 0.2), rgba(58, 175, 169, 0.2));
+            border: 1px solid var(--emerald-success);
+            border-radius: 12px;
+            padding: 12px 16px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--emerald-success);
+        }
+
+        /* Streak Widget */
+        .streak-widget {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .streak-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .streak-fire {
+            font-size: 2rem;
+        }
+
+        .streak-count {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--amber-warmth);
+        }
+
+        .progress-bar-container {
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--jade-wave), var(--electric-pulse));
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* Окно возможностей */
+        .opportunity-window {
+            background: linear-gradient(135deg, rgba(95, 39, 205, 0.2), rgba(199, 37, 78, 0.2));
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--amethyst-premium);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .opportunity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .opportunity-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+        }
+
+        .timer {
+            font-family: var(--font-mono);
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--amber-warmth);
+        }
+
+        .premium-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            font-size: 0.9375rem;
+            line-height: 1.5;
+        }
+
+        .unlock-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--amethyst-premium), var(--ruby-alert));
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 1rem;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .unlock-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Дерево здоровья */
+        .health-tree {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .tree-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .tree-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+        }
+
+        .tree-leaves {
+            font-size: 0.875rem;
+            color: var(--emerald-success);
+            font-weight: 600;
+        }
+
+        .tree-visual {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .tree-crown {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            animation: sway 3s infinite ease-in-out;
+        }
+
+        .leaf {
+            font-size: 1.5rem;
+            animation: leaf-dance 2s infinite ease-in-out;
+        }
+
+        .leaf:nth-child(2) { animation-delay: 0.2s; }
+        .leaf:nth-child(3) { animation-delay: 0.4s; }
+        .leaf:nth-child(4) { animation-delay: 0.6s; }
+        .leaf:nth-child(5) { animation-delay: 0.8s; }
+
+        @keyframes leaf-dance {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-4px) rotate(5deg); }
+        }
+
+        @keyframes sway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+
+        .tree-trunk {
+            width: 20px;
+            height: 40px;
+            background: linear-gradient(180deg, var(--silver-light), var(--silver-mist));
+            border-radius: 4px;
+        }
+
+        /* Нижняя навигация */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--deep-secondary);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .nav-item.active {
+            color: var(--jade-light);
+        }
+
+        .nav-icon {
+            font-size: 1.5rem;
+        }
+
+        .nav-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Loader */
+        .loader {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mesh градиент фон -->
+    <div class="bg-mesh-blob"></div>
+    <div class="bg-mesh-blob"></div>
+    <div class="bg-mesh-blob"></div>
+    <div class="bg-mesh-blob"></div>
+    
+    <div class="app-container">
+        <!-- Приветствие -->
+        <div class="greeting" id="greeting">Загрузка...</div>
+
+        <!-- Профиль -->
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="avatar" id="avatar">?</div>
+                <div class="profile-info">
+                    <h2 id="userName">Загрузка...</h2>
+                    <div class="profile-stats">
+                        <span class="stat-item">📏 180см</span>
+                        <span class="stat-item">⚖️ 75кг</span>
+                    </div>
+                </div>
+            </div>
+            <div class="status-badge" id="statusBadge">
+                💚 Состояние: Отличное
+            </div>
+        </div>
+
+        <!-- Streak -->
+        <div class="streak-widget">
+            <div class="streak-header">
+                <div>
+                    <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 4px;">Твой Streak</div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="streak-fire">🔥</span>
+                        <span class="streak-count" id="streakCount">0 дней</span>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 4px;">Уровень</div>
+                    <div style="font-size: 1.5rem; font-weight: 800; color: var(--electric-pulse);" id="userLevel">1</div>
+                </div>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar" style="width: 0%;"></div>
+            </div>
+            <div class="progress-label" id="progressLabel">0% до следующего уровня</div>
+        </div>
+
+        <!-- Окно возможностей -->
+        <div class="opportunity-window">
+            <div class="opportunity-header">
+                <div class="opportunity-title">
+                    ⏰ Окно возможностей
+                </div>
+                <div class="timer" id="timer">00:00</div>
+            </div>
+            <div class="opportunity-content">
+                <div class="premium-item">
+                    🎁 <strong>Премиум видео:</strong> "Йога для шеи: 10 минут релакса"
+                </div>
+                <button class="unlock-btn" onclick="unlockPremium()">
+                    Открыть на 10 минут ⏱️
+                </button>
+            </div>
+        </div>
+
+        <!-- Дерево здоровья -->
+        <div class="health-tree">
+            <div class="tree-header">
+                <div class="tree-title">🌱 Твоё дерево здоровья</div>
+                <div class="tree-leaves" id="treeLeaves">+0 листочков сегодня</div>
+            </div>
+            <div class="tree-visual">
+                <div class="tree-crown" id="treeCrown">
+                    <span class="leaf">🍃</span>
+                </div>
+                <div class="tree-trunk"></div>
+            </div>
+            <div style="text-align: center; font-size: 0.875rem; color: var(--text-muted);" id="treeInfo">
+                Streak 0 дней = 0 листьев 🎉
+            </div>
+        </div>
+
+        <!-- Сравнение с собой -->
+        <div class="profile-card">
+            <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 16px;">📊 Сравнение с собой</h3>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: var(--text-muted);">💎 SPINE-токены</span>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-weight: 700; font-size: 1.125rem;" id="userTokens">0</span>
+                        <span style="color: var(--emerald-success); font-size: 0.875rem;" id="tokensChange">+0</span>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: var(--text-muted);">🏋️ Упражнения</span>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-weight: 700; font-size: 1.125rem;" id="exercisesCompleted">0</span>
+                        <span style="color: var(--emerald-success); font-size: 0.875rem;" id="exercisesChange">+0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Прогресс наград -->
+        <div class="profile-card">
+            <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 16px;">🎁 До следующей награды</h3>
+            <div style="text-align: center; margin-bottom: 16px;">
+                <div style="font-size: 2.5rem; font-weight: 800; color: var(--amber-warmth);" id="rewardProgress">0/7</div>
+                <div style="font-size: 0.875rem; color: var(--text-muted);">дней streak для награды</div>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="rewardProgressBar" style="width: 0%;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Нижняя навигация -->
+    <div class="bottom-nav">
+        <a href="#" class="nav-item active">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">Главная</div>
+        </a>
+        <a href="#" class="nav-item">
+            <div class="nav-icon">🏆</div>
+            <div class="nav-label">Упражнения</div>
+        </a>
+        <a href="#" class="nav-item">
+            <div class="nav-icon">📊</div>
+            <div class="nav-label">Прогресс</div>
+        </a>
+        <a href="#" class="nav-item">
+            <div class="nav-icon">🌕</div>
+            <div class="nav-label">Токены</div>
+        </a>
+    </div>
+
+    <script>
+        // ==============================================
+        // КОНФИГУРАЦИЯ
+        // ==============================================
+        const API_URL = 'https://spineguard-api.onrender.com';
+        
+        // Инициализация Telegram WebApp
+        const tg = window.Telegram?.WebApp;
+        if (tg) {
+            tg.ready();
+            tg.expand();
+        }
+        
+        // Получаем telegram_id
+        const telegram_id = tg?.initDataUnsafe?.user?.id || '123456';
+        
+        console.log('='.repeat(50));
+        console.log('SpineGuard Mini App запущен!');
+        console.log('API URL:', API_URL);
+        console.log('Telegram ID:', telegram_id);
+        console.log('='.repeat(50));
+
+        // ==============================================
+        // ЗАГРУЗКА ДАННЫХ ПОЛЬЗОВАТЕЛЯ
+        // ==============================================
+        async function loadUserData() {
+            try {
+                console.log('Загружаем данные пользователя...', telegram_id);
+                
+                const response = await fetch(`${API_URL}/api/user/${telegram_id}`);
+                const data = await response.json();
+                
+                console.log('Данные получены:', data);
+                
+                if (data.success && data.user) {
+                    const user = data.user;
+                    
+                    // Обновляем имя пользователя
+                    const userName = user.name || 'Пользователь';
+                    document.getElementById('userName').textContent = userName;
+                    document.getElementById('avatar').textContent = userName.charAt(0).toUpperCase();
+                    
+                    // Обновляем приветствие
+                    updateGreeting(userName);
+                    
+                    // Обновляем токены
+                    document.getElementById('userTokens').textContent = user.tokens || 0;
+                    
+                    // Обновляем streak
+                    const streak = user.streak || 0;
+                    document.getElementById('streakCount').textContent = `${streak} дней`;
+                    document.getElementById('treeInfo').textContent = `Streak ${streak} дней = ${streak} листьев 🎉`;
+                    
+                    // Обновляем листья на дереве
+                    updateTree(streak);
+                    
+                    // Обновляем уровень
+                    document.getElementById('userLevel').textContent = user.level || 1;
+                    
+                    // Обновляем прогресс до награды
+                    const rewardProgress = streak % 7;
+                    document.getElementById('rewardProgress').textContent = `${rewardProgress}/7`;
+                    document.getElementById('rewardProgressBar').style.width = `${(rewardProgress / 7) * 100}%`;
+                    
+                    // Обновляем прогресс-бар уровня
+                    const progress = 70; // Можно вычислять из токенов
+                    document.getElementById('progressBar').style.width = `${progress}%`;
+                    document.getElementById('progressLabel').textContent = `${progress}% до следующего уровня`;
+                    
+                    console.log('Данные обновлены успешно!');
+                } else {
+                    console.error('Неверный формат данных:', data);
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки данных:', error);
+                // Показываем дефолтные данные
+                updateGreeting('Пользователь');
+            }
+        }
+
+        // ==============================================
+        // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+        // ==============================================
+        
+        function updateGreeting(name) {
+            const hour = new Date().getHours();
+            let greeting;
+            
+            if (hour < 6) greeting = "🌙 Доброй ночи";
+            else if (hour < 12) greeting = "🌅 Доброе утро";
+            else if (hour < 18) greeting = "☀️ Добрый день";
+            else greeting = "🌆 Добрый вечер";
+            
+            document.getElementById('greeting').textContent = `${greeting}, ${name}!`;
+        }
+        
+        function updateTree(streak) {
+            const treeCrown = document.getElementById('treeCrown');
+            const leafCount = Math.min(streak, 10); // Макс 10 листьев
+            
+            treeCrown.innerHTML = '';
+            for (let i = 0; i < leafCount; i++) {
+                const leaf = document.createElement('span');
+                leaf.className = 'leaf';
+                leaf.textContent = '🍃';
+                treeCrown.appendChild(leaf);
+            }
+            
+            if (leafCount === 0) {
+                treeCrown.innerHTML = '<span class="leaf">🌱</span>';
+            }
+        }
+        
+        function updateTimer() {
+            const now = new Date();
+            const midnight = new Date();
+            midnight.setHours(24, 0, 0, 0);
+            
+            const diff = midnight - now;
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            
+            document.getElementById('timer').textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        }
+        
+        function unlockPremium() {
+            alert('🎉 Премиум контент разблокирован на 10 минут!');
+        }
+
+        // ==============================================
+        // ИНИЦИАЛИЗАЦИЯ
+        // ==============================================
+        
+        // Загружаем данные при старте
+        loadUserData();
+        
+        // Обновляем таймер
+        updateTimer();
+        setInterval(updateTimer, 60000);
+        
+        console.log('Инициализация завершена!');
+    </script>
+</body>
+</html>
