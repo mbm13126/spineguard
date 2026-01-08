@@ -5,102 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SpineGuard</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #0f172a;
-            --card: rgba(30, 41, 59, 0.6);
+            --card: rgba(30, 41, 59, 0.7);
             --jade: #3AAFA9;
             --electric: #2E86DE;
             --text: #ffffff;
             --text-muted: #94a3b8;
-            --accent: #3AAFA9;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Manrope', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            color: var(--text);
-            min-height: 100vh;
-            padding: 16px;
-        }
-        .container { max-width: 480px; margin: 0 auto; }
-
-        .header {
-            text-align: center;
-            padding: 24px 0;
-        }
-        .greeting { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+        body { margin: 0; overflow: hidden; font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--text); }
+        #particles-js { position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: -1; }
+        .container { max-width: 480px; margin: 0 auto; padding: 16px; position: relative; z-index: 1; min-height: 100vh; }
+        .header { text-align: center; padding: 32px 0 16px; }
+        .greeting { font-size: 28px; font-weight: 800; }
         .status { font-size: 18px; color: var(--jade); }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-            margin: 24px 0;
-        }
-        .stat-card {
-            background: var(--card);
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(58, 175, 169, 0.2);
-            transition: transform 0.3s;
-        }
-        .stat-card:hover { transform: translateY(-4px); }
-
-        .tree-section {
-            text-align: center;
-            margin: 32px 0;
-        }
-        .tree-svg { width: 200px; height: 200px; margin: 0 auto; }
-        .leaf { opacity: 0; animation: appear 0.6s forwards; }
-        @keyframes appear { to { opacity: 1; transform: translateY(0); } }
-
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
+        .stat-card { background: var(--card); backdrop-filter: blur(12px); border-radius: 16px; padding: 20px; text-align: center; border: 1px solid rgba(58,175,169,0.3); }
+        .stat-card h3 { color: var(--text-muted); font-size: 14px; }
+        .stat-card p { font-size: 32px; margin: 8px 0; font-family: 'Space Mono', monospace; }
+        .jade { color: var(--jade); }
+        .electric { color: var(--electric); }
+        .tree-section { text-align: center; margin: 40px 0; }
+        .tree-svg { width: 220px; height: 220px; margin: 0 auto; }
         .exercises-list { margin: 32px 0; }
-        .exercise-card {
-            background: var(--card);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(58, 175, 169, 0.2);
-            transition: all 0.3s;
-        }
-        .exercise-card:hover { transform: scale(1.02); }
-        .exercise-btn {
-            background: var(--jade);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .token-popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: var(--jade);
-            color: white;
-            padding: 20px 40px;
-            border-radius: 20px;
-            font-size: 24px;
-            font-weight: 800;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.6s;
-        }
+        .exercise-card { background: var(--card); backdrop-filter: blur(12px); border-radius: 16px; padding: 20px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(58,175,169,0.3); animation: fadeIn 0.8s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .exercise-btn { background: var(--jade); color: white; border: none; padding: 12px 28px; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; }
+        .token-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--jade); color: white; padding: 24px 48px; border-radius: 24px; font-size: 28px; font-weight: 800; opacity: 0; pointer-events: none; transition: all 0.4s; box-shadow: 0 20px 40px rgba(58,175,169,0.4); z-index: 10; }
         .token-popup.show { opacity: 1; transform: translate(-50%, -60%); }
     </style>
 </head>
 <body>
+    <div id="particles-js"></div>
     <div class="container">
         <div class="header">
             <h1 id="greeting" class="greeting">Привет!</h1>
@@ -110,15 +49,15 @@
         <div class="stats-grid">
             <div class="stat-card">
                 <h3>Токены</h3>
-                <p id="userTokens" style="font-size: 32px; color: var(--jade);">0</p>
+                <p id="userTokens" class="jade">0</p>
             </div>
             <div class="stat-card">
                 <h3>Уровень</h3>
-                <p id="userLevel" style="font-size: 32px;">1</p>
+                <p id="userLevel">1</p>
             </div>
             <div class="stat-card">
                 <h3>Streak</h3>
-                <p id="streakCount" style="font-size: 28px; color: var(--electric);">0 дней</p>
+                <p id="streakCount" class="electric">0 дней</p>
             </div>
             <div class="stat-card">
                 <h3>Награда</h3>
@@ -128,20 +67,17 @@
 
         <div class="tree-section">
             <svg class="tree-svg" viewBox="0 0 200 200">
-                <!-- Ствол -->
                 <rect x="95" y="120" width="10" height="80" fill="#8b4513"/>
-                <!-- Крона -->
                 <circle cx="100" cy="80" r="50" fill="#228B22" opacity="0.8"/>
                 <circle cx="80" cy="100" r="40" fill="#228B22" opacity="0.7"/>
                 <circle cx="120" cy="100" r="40" fill="#228B22" opacity="0.7"/>
-                <!-- Листья -->
                 <g id="treeCrown"></g>
             </svg>
             <p id="treeInfo">Streak 0 дней</p>
         </div>
 
         <div class="exercises-list" id="exercisesList">
-            <!-- Упражнения подгрузятся сюда -->
+            <!-- Упражнения загрузятся сюда -->
         </div>
 
         <div class="token-popup" id="tokenPopup">+20 токенов!</div>
@@ -158,7 +94,7 @@
             try {
                 const res = await fetch(`${API_URL}/api/user/${telegramId}`);
                 const data = await res.json();
-                if (!data.success) return;
+                if (!data.success || !data.user) return;
 
                 const u = data.user;
                 document.getElementById('greeting').textContent = getGreeting() + `, ${u.name}!`;
@@ -189,64 +125,50 @@
             const crown = document.getElementById('treeCrown');
             crown.innerHTML = '';
             const leafCount = Math.min(streak, 15);
-            const positions = [
-                [100,60],[80,70],[120,70],[70,90],[130,90],
-                [90,50],[110,50],[75,60],[125,60],[85,80],
-                [115,80],[65,100],[135,100],[95,45],[105,45]
-            ];
+            const positions = [[100,60],[80,70],[120,70],[70,90],[130,90],[90,50],[110,50],[75,60],[125,60],[85,80],[115,80],[65,100],[135,100],[95,45],[105,45]];
             for (let i = 0; i < leafCount; i++) {
                 const leaf = document.createElementNS("http://www.w3.org/2000/svg", "text");
                 leaf.setAttribute("x", positions[i][0]);
                 leaf.setAttribute("y", positions[i][1]);
                 leaf.setAttribute("font-size", "30");
                 leaf.textContent = "🍃";
-                leaf.classList.add('leaf');
                 leaf.style.animationDelay = `${i * 0.1}s`;
                 crown.appendChild(leaf);
             }
         }
 
-       async function loadExercises() {
-    const tg = window.Telegram.WebApp;
-    const telegramId = tg.initDataUnsafe.user?.id?.toString();
-    if (!telegramId) {
-        console.error('Нет telegramId — Mini App не в Telegram');
-        return;
-    }
+        async function loadExercises() {
+            const tg = window.Telegram.WebApp;
+            const telegramId = tg.initDataUnsafe.user?.id?.toString();
+            if (!telegramId) return;
 
-    try {
-        const res = await fetch(`${API_URL}/api/personalized-exercises/${telegramId}`);
-        const data = await res.json();
+            try {
+                const res = await fetch(`${API_URL}/api/personalized-exercises/${telegramId}`);
+                const data = await res.json();
+                if (!data.success) return;
 
-        if (!data.success) {
-            console.error('API ошибка:', data);
-            return;
-        }
+                const list = document.getElementById('exercisesList');
+                list.innerHTML = '';
 
-        const list = document.getElementById('exercisesList');
-        list.innerHTML = '';  // Очищаем старые
-
-        data.exercises.forEach(ex => {
-            const card = document.createElement('div');
-            card.className = 'exercise-card';
-            card.innerHTML = `
-                <div>
-                    <h3>${ex.title}</h3>
-                    <p style="color:var(--text-muted);">${ex.description}</p>
-                    <p style="color:var(--jade); font-size:14px;">${ex.duration || ''} • ${ex.benefit || ''}</p>
-                </div>
-                <button class="exercise-btn" onclick="completeExercise(${ex.id || 0})">Выполнить</button>
-            `;
-            list.appendChild(card);
-        });
-    } catch (e) {
-        console.error('Ошибка загрузки упражнений:', e);
-    }
-}
+                data.exercises.forEach(ex => {
+                    const card = document.createElement('div');
+                    card.className = 'exercise-card';
+                    card.innerHTML = `
+                        <div>
+                            <h3>${ex.title || 'Упражнение'}</h3>
+                            <p style="color:var(--text-muted);">${ex.description || ''}</p>
+                            <p style="color:var(--jade); font-size:14px;">${ex.duration || ''} • ${ex.benefit || ''}</p>
+                        </div>
+                        <button class="exercise-btn" onclick="completeExercise()">Выполнить</button>
+                    `;
+                    list.appendChild(card);
+                });
+            } catch (e) {
+                console.error('Ошибка загрузки упражнений:', e);
             }
         }
 
-        async function completeExercise(exId) {
+        async function completeExercise() {
             const tg = window.Telegram.WebApp;
             const telegramId = tg.initDataUnsafe.user.id.toString();
 
@@ -259,7 +181,7 @@
                 const data = await res.json();
                 if (data.success) {
                     document.getElementById('tokenPopup').classList.add('show');
-                    setTimeout(() => document.getElementById('tokenPopup').classList.remove('show'), 1000);
+                    setTimeout(() => document.getElementById('tokenPopup').classList.remove('show'), 1500);
                     loadUserData();
                 }
             } catch (e) {
@@ -267,7 +189,22 @@
             }
         }
 
-        // Init
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 60 },
+                color: { value: ['#3AAFA9', '#2E86DE'] },
+                shape: { type: 'circle' },
+                opacity: { value: 0.5, random: true },
+                size: { value: 4, random: true },
+                line_linked: { enable: true, distance: 150, color: '#3AAFA9', opacity: 0.3, width: 1 },
+                move: { enable: true, speed: 1.5 }
+            },
+            interactivity: {
+                events: { onhover: { enable: true, mode: 'repulse' }, ontouch: { enable: true, mode: 'repulse' } }
+            },
+            retina_detect: true
+        });
+
         loadUserData();
         loadExercises();
         Telegram.WebApp.ready();
