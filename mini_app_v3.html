@@ -120,7 +120,31 @@
             if (h < 18) return "☀️ Добрый день";
             return "🌆 Добрый вечер";
         }
+<button onclick="dailyCheckin()">5 мин практики сегодня 🌱</button>
 
+async function dailyCheckin() {
+    const telegramId = window.Telegram.WebApp.initDataUnsafe.user.id.toString();
+    try {
+        const response = await fetch('https://spineguard-api.onrender.com/api/daily-checkin', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({telegram_id: telegramId})
+        });
+        const data = await response.json();
+        if (data.success) {
+            // Обнови визуализацию дерева
+            updateTree(data.current_streak);  // Твоя функция роста листьев
+            document.getElementById('streakText').textContent = `Streak: ${data.current_streak} дней 🔥`;
+            document.getElementById('treesText').textContent = `Посажено деревьев: ${data.trees_planted} 🌳`;
+            if (data.planted_today) {
+                alert('🎉 30 дней подряд — дерево посажено от твоего имени! Сертификат скоро ❤️');
+            } else {
+                alert(data.message);
+            }
+        }
+    } catch (e) {
+        alert('Что-то пошло не так — попробуй позже');
+    }        
         function updateTree(streak) {
             const crown = document.getElementById('treeCrown');
             crown.innerHTML = '';
